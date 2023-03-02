@@ -130,3 +130,5 @@ dmypy.json
 
 # OTHERS
 .idea/
+ISS-Templates/
+data/
