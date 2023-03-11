@@ -1,0 +1,58 @@
+@startuml "System Design for My App"
+
+skinparam ComponentStyle rectangle
+
+
+frame frontend{
+    file image
+    [output]
+    image -[hidden]- [output]
+}
+
+
+frame backend {
+    collections "Sample Images"
+    note as R
+    Red arrow indecates the 
+    preprocessing for sample images
+    end note
+
+    package Preprocessing {
+        [Image Processing]
+    }
+
+
+    package "Feature Extraction"{
+        [Feature Extractor]
+        [Feature Vector]
+        [Feature Dictionary]
+    }
+
+    package "Matching"{
+        [Matching Processor]
+    }
+}
+
+image->[Image Processing] #Green
+[Sample Images]-->[Image Processing] #Red
+[Image Processing] -> [Feature Extractor] #Green
+[Image Processing] -> [Feature Extractor] #Red
+[Feature Extractor]-->[Feature Vector] #Green
+[Feature Extractor]-->[Feature Vector] #Red
+[Feature Vector]-->[Feature Dictionary] #Red
+
+[Matching Processor]<-[Feature Vector] #Green
+[Matching Processor]<-[Feature Dictionary] #Red
+
+[output]<-[Matching Processor] #Green
+
+note as G
+Green arrow indecates the 
+run time flow for input image
+end note
+
+
+G -- image
+[Sample Images] - R
+
+@enduml

@@ -1,0 +1,7 @@
+myenv/
+models/*.csv
+models/*2023*
+static/images/
+dataset/
+validate/
+samples/
