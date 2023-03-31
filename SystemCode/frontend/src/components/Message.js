@@ -36,7 +36,7 @@ const Message = ({ message, showDetails }) => {
                 <img
                   alt="Matched Output"
                   width={400}
-                  src={"/static/images/" + message.response.result}
+                  src={message.response.result}
                 />
               </Box>
             </Paper>

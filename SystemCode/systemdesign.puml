@@ -31,6 +31,10 @@ frame backend {
     package "Matching"{
         [Matching Processor]
     }
+    note as MP
+    Find the matching image by computing the 
+    nearest neighbour in the feature dictionary
+    end note
 }
 
 image->[Image Processing] #Green
@@ -51,8 +55,30 @@ Green arrow indecates the
 run time flow for input image
 end note
 
+note as CNN
+Backbone CNN network from VGG
+end note
+
+note as FM
+Feature map of the image extracted
+by the backbone CNN
+end note
+
+note as FD
+Feature dictionary of the sample images
+end note
+
+
 
 G -- image
 [Sample Images] - R
+
+CNN - [Feature Extractor]
+
+FM - [Feature Vector]
+
+FD - [Feature Dictionary]
+
+[Matching Processor] -- MP
 
 @enduml
