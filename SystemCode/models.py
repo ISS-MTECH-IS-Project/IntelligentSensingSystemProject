@@ -72,17 +72,18 @@ def process_image(img_file):
 
 
 def load_all_models():
-    # base_model = VGG16(input_shape=(224, 224, 3),  # Shape of our images
-    #                    include_top=False,  # Leave out the last fully connected layer
-    #                    weights='imagenet')
+    base_model = VGG16(input_shape=(224, 224, 3),  # Shape of our images
+                       include_top=False,  # Leave out the last fully connected layer
+                       weights='imagenet')
 
-    # for layer in base_model.layers:
-    #     layer.trainable = False
-    #     # print(layer)
-    # base_model.summary()
-    # x = layers.Flatten()(base_model.output)
-    # model = tf.keras.models.Model(base_model.input, x)
-    model = load_model("models/self_trained.hdf5")
+    for layer in base_model.layers:
+        layer.trainable = False
+        # print(layer)
+    base_model.summary()
+    x = layers.Flatten()(base_model.output)
+    model = tf.keras.models.Model(base_model.input, x)
+    # model2 = load_model("models/backbone_c.hdf5")
+    # model = load_model("models/self_trained.hdf5")
     model2 = load_model("models/self_trained_c.hdf5")
     return model, model2
 
@@ -92,6 +93,12 @@ def build_feat_dic(model, files):
     features = [model.predict(process_image(f))[0] for f in files]
 
     return features
+
+
+def getImageFile(processed: str):
+    res = processed.replace("Processed_", "")
+    res = res.replace("processed", "sample")
+    return res
 
 
 class Matcher(metaclass=SingletonMeta):
@@ -122,5 +129,6 @@ class Matcher(metaclass=SingletonMeta):
         # print(nearest)
         resImage = self.files[nearest[1][0][0]]
         print(resImage)
-        res = {"result": resImage}
+        # res = {"result": resImage}
+        res = {"result": getImageFile(resImage)}
         return res
