@@ -7,6 +7,9 @@ import FormGroup from "@mui/material/FormGroup";
 import FormControlLabel from "@mui/material/FormControlLabel";
 import Switch from "@mui/material/Switch";
 import Webcam from "react-webcam";
+import { ReactSketchCanvas } from "react-sketch-canvas";
+import Modal from "react-modal";
+
 const videoConstraints = {
   width: 400,
   height: 400,
@@ -17,14 +20,48 @@ const Footer = ({ onSend, onToggle }) => {
   const [preview, setPreview] = useState();
   const [uploadImage, setUploadImage] = useState();
   const webcamRef = useRef(null);
+  const canvas = useRef(null);
 
-  const capture = useCallback(async () => {
-    const pictureSrc = webcamRef.current.getScreenshot();
-    const blob = await fetch(pictureSrc).then((res) => res.blob());
+  const [modalIsOpen, setIsOpen] = useState(false);
+
+  function openModal() {
+    setIsOpen(true);
+  }
+  function closeModal() {
+    setIsOpen(false);
+  }
+  function undoModal() {
+    canvas.current.undo();
+  }
+  function redoModal() {
+    canvas.current.redo();
+  }
+  function clearModal() {
+    canvas.current.clearCanvas();
+  }
+
+  const updateImage = async (data) => {
+    const blob = await fetch(data).then((res) => res.blob());
     blob.name = "screenshot" + Date.now() + ".jpg";
     blob.lastModified = new Date();
     setImage(blob);
-    setPreview(pictureSrc);
+    setPreview(data);
+  };
+
+  const exportDraw = useCallback(async () => {
+    canvas.current
+      .exportImage("jpeg")
+      .then((data) => {
+        updateImage(data);
+        closeModal();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  });
+  const capture = useCallback(async () => {
+    const pictureSrc = webcamRef.current.getScreenshot();
+    updateImage(pictureSrc);
   });
   const onClickF = () => {
     console.log("button clicked");
@@ -82,10 +119,50 @@ const Footer = ({ onSend, onToggle }) => {
               onChange={handleChange}
             />
           </Button>
+          <Button onClick={openModal} variant="contained" component="label">
+            Draw
+          </Button>
         </div>
       </Grid>
       <Grid item xs={5}>
         <img width={400} src={preview}></img>
+        <div>
+          <Modal
+            isOpen={modalIsOpen}
+            onRequestClose={closeModal}
+            contentLabel="Example Modal"
+            ariaHideApp={false}
+          >
+            <Button onClick={closeModal} variant="contained" component="label">
+              close
+            </Button>
+            <Button
+              variant="contained"
+              component="label"
+              onClick={(e) => {
+                e.preventDefault();
+                exportDraw();
+              }}
+            >
+              Get Image
+            </Button>
+            <Button onClick={undoModal} variant="contained" component="label">
+              Undo
+            </Button>
+            <Button onClick={redoModal} variant="contained" component="label">
+              Redo
+            </Button>
+            <Button onClick={clearModal} variant="contained" component="label">
+              Clear
+            </Button>
+            <ReactSketchCanvas
+              ref={canvas}
+              strokeWidth={5}
+              strokeColor="black"
+              height="90%"
+            />
+          </Modal>
+        </div>
       </Grid>
       <Grid item xs={2} alignItems="flex-end">
         <Grid container direction="column" alignContent="flex-end">
