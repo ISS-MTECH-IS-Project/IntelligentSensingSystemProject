@@ -1,4 +1,5 @@
 from urllib import response
+from preprocessing import Pic_preprocessing
 from flask import Flask, jsonify, request
 from flask import render_template
 from flask import send_from_directory
@@ -46,5 +47,6 @@ def uploadFile(file1):
 def matchImage():
     image = request.files["image"]
     filename = uploadFile(image)
-    resp = __matcher.findMatch(filename)
+    processedFile = Pic_preprocessing(filename)
+    resp = __matcher.findMatch(processedFile)
     return jsonify(resp)
