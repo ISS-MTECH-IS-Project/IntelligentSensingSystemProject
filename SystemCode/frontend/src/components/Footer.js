@@ -160,6 +160,7 @@ const Footer = ({ onSend, onToggle }) => {
               strokeWidth={5}
               strokeColor="black"
               height="90%"
+              width="50%"
             />
           </Modal>
         </div>

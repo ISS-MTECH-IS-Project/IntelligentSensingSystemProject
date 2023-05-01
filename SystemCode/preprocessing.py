@@ -53,11 +53,29 @@ def Edgeline(image):
     return edges
 
 
+def resize(image):
+    height, width, _ = image.shape
+    top, bottom, left, right = 0, 0, 0, 0
+    if(height > width):
+        left = (height-width)//2
+        right = height-width-left
+    else:
+        top = (width-height)//2
+        bottom = width-height-top
+    return cv2.copyMakeBorder(image, top,
+                              bottom,
+                              left,
+                              right,
+                              cv2.BORDER_CONSTANT,
+                              value=(255, 255, 255))
+
+
 def Pic_preprocessing(file):
     UPLOAD_FOLDER = "./static/images/"
     # Read the image
     image = cv2.imread(UPLOAD_FOLDER+file)
 
+    image = resize(image)
     # Convert to grayscale
     grey_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
