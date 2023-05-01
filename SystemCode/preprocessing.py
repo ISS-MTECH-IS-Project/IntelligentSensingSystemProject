@@ -1,21 +1,21 @@
 import os
 import cv2
-from matplotlib import pyplot as plt
 import numpy as np
 
+
 def Contrast(image):
-       
+
     # converting to LAB color space
-    imagelab= cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+    imagelab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
     l_channel, a, b = cv2.split(imagelab)
 
     # Applying CLAHE to L-channel
     # feel free to try different values for the limit and grid size:
-    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8,8))
+    clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
     cl = clahe.apply(l_channel)
 
     # merge the CLAHE enhanced L-channel with the a and b channel
-    limg = cv2.merge((cl,a,b))
+    limg = cv2.merge((cl, a, b))
 
     # Converting image from LAB Color model to BGR color spcae
     enhanced_img = cv2.cvtColor(limg, cv2.COLOR_LAB2BGR)
@@ -25,7 +25,7 @@ def Contrast(image):
 
 def Edgeline(image):
     enhanced_img = Contrast(image)
-    
+
     # Convert to grayscale
     gray = cv2.cvtColor(enhanced_img, cv2.COLOR_BGR2GRAY)
 
@@ -42,7 +42,8 @@ def Edgeline(image):
     closed = cv2.morphologyEx(thresh, cv2.MORPH_CLOSE, kernel)
     closed = cv2.erode(closed, None, iterations=4)
     closed = cv2.dilate(closed, None, iterations=4)
-    r1 = cv2.morphologyEx(closed, cv2.MORPH_CLOSE, np.ones((10,10),np.uint8), iterations=3)
+    r1 = cv2.morphologyEx(closed, cv2.MORPH_CLOSE, np.ones(
+        (10, 10), np.uint8), iterations=3)
 
     # Find edges and draw them on the original image
     edges = cv2.Canny(r1, 50, 150)
@@ -52,10 +53,29 @@ def Edgeline(image):
     return edges
 
 
-def Pic_preprocessing(file):
-    # Read the image
-    image = cv2.imread(file)
+def resize(image):
+    height, width, _ = image.shape
+    top, bottom, left, right = 0, 0, 0, 0
+    if(height > width):
+        left = (height-width)//2
+        right = height-width-left
+    else:
+        top = (width-height)//2
+        bottom = width-height-top
+    return cv2.copyMakeBorder(image, top,
+                              bottom,
+                              left,
+                              right,
+                              cv2.BORDER_CONSTANT,
+                              value=(255, 255, 255))
 
+
+def Pic_preprocessing(file):
+    UPLOAD_FOLDER = "./static/images/"
+    # Read the image
+    image = cv2.imread(UPLOAD_FOLDER+file)
+
+    image = resize(image)
     # Convert to grayscale
     grey_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
@@ -63,7 +83,7 @@ def Pic_preprocessing(file):
     invert = cv2.bitwise_not(grey_img)
 
     # Apply Gaussian blur
-    blur = cv2.GaussianBlur(invert, (29,21), 0)
+    blur = cv2.GaussianBlur(invert, (29, 21), 0)
 
     # Invert the blurred image
     invertedblur = cv2.bitwise_not(blur)
@@ -74,13 +94,16 @@ def Pic_preprocessing(file):
     # Convert to BGR (if needed)
     sketch = cv2.cvtColor(sketch, cv2.COLOR_GRAY2BGR)
     enhanced_sketch = Contrast(sketch)
-    
+
     edges = Edgeline(image)
-    
+
     # Dilate edges to increase thickness
     kernel = np.ones((10, 10), np.uint8)
     dilated_edges = cv2.dilate(edges, kernel, iterations=1)
 
     result = cv2.bitwise_and(enhanced_sketch, edges)
-    
-    return result
+
+    newname = UPLOAD_FOLDER+"processed_"+file
+    cv2.imwrite(newname, result)
+
+    return newname

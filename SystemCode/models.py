@@ -42,20 +42,20 @@ def readImagesFromDir(base_img_path='static/images/processed/'):
 
     print(dirs)
 
-    X, y = [], []
+    dir_files = []
 
     for d in dirs:
         img_path = base_img_path + d + "/"
         files = [f for f in listdir(img_path) if isfile(join(img_path, f))]
-        X = X + [os.path.join(img_path, f)
-                 for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
-        y = y + [d for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+        X = [os.path.join(img_path, f)
+             for f in files if f.lower().endswith(('.png', '.jpg', '.jpeg'))]
+        dir_files.append(X)
         # print(d)
 
     # data_dir = Path(base_img_path)
     # image_count = len(list(data_dir.glob('*/*.*')))
 
-    return X, y, dirs
+    return dir_files, dirs
 
 
 def process_image(img_file):
@@ -104,30 +104,34 @@ def getImageFile(processed: str):
 class Matcher(metaclass=SingletonMeta):
     def __init__(self):
         self.extractor_model, self.classifier = load_all_models()
-        self.files, self.folders, self.classes = readImagesFromDir()
-        self.featureDic = build_feat_dic(self.extractor_model, self.files)
-        print(len(self.files))
-        print(len(self.featureDic))
-        self.neigh = NearestNeighbors(n_neighbors=1)
-        self.neigh.fit(self.featureDic)
+        self.dir_files, self.classes = readImagesFromDir()
+        self.neigh_models = []
+        for files in self.dir_files:
+            featureDic = build_feat_dic(self.extractor_model, files)
+            print(len(files))
+            print(len(featureDic))
+            neigh = NearestNeighbors(n_neighbors=1)
+            neigh.fit(featureDic)
+            self.neigh_models.append(neigh)
 
     def findMatch(self, image):
-        img_file = UPLOAD_FOLDER+"/"+image
-        print(img_file)
+        # img_file = UPLOAD_FOLDER+"/"+image
+        print(image)
 
-        predict_res = self.extractor_model.predict(process_image(img_file))[0]
-        classify_res = self.classifier.predict(process_image(img_file))[0]
+        predict_res = self.extractor_model.predict(process_image(image))[0]
+        classify_res = self.classifier.predict(process_image(image))[0]
         score = tf.nn.softmax(classify_res)
+        class_idx = np.argmax(score)
         print(score)
         print(
             "This image most likely belongs to {} with a {:.2f} percent confidence."
-            .format(self.classes[np.argmax(score)], 100 * np.max(score))
+            .format(self.classes[class_idx], 100 * np.max(score))
         )
 
         # print("predict results: ", predict_res)
-        nearest = self.neigh.kneighbors([predict_res])
+        nearest = self.neigh_models[class_idx].kneighbors([predict_res])
         # print(nearest)
-        resImage = self.files[nearest[1][0][0]]
+        resImage = self.dir_files[class_idx][nearest[1][0][0]]
         print(resImage)
         # res = {"result": resImage}
         res = {"result": getImageFile(resImage)}
