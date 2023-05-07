@@ -23,8 +23,8 @@ frame backend {
 
 
     package "Feature Extraction"{
-        [Feature Extractor]
-        [Feature Vector]
+        [Feature Extractor and Classifier]
+        [Feature Vector and Image Class]
         [Feature Dictionary]
     }
 
@@ -34,18 +34,19 @@ frame backend {
     note as MP
     Find the matching image by computing the 
     nearest neighbour in the feature dictionary
+    based on the image class
     end note
 }
 
 image->[Image Processing] #Green
 [Sample Images]-->[Image Processing] #Red
-[Image Processing] -> [Feature Extractor] #Green
-[Image Processing] -> [Feature Extractor] #Red
-[Feature Extractor]-->[Feature Vector] #Green
-[Feature Extractor]-->[Feature Vector] #Red
-[Feature Vector]-->[Feature Dictionary] #Red
+[Image Processing] -> [Feature Extractor and Classifier] #Green
+[Image Processing] -> [Feature Extractor and Classifier] #Red
+[Feature Extractor and Classifier]-->[Feature Vector and Image Class] #Green
+[Feature Extractor and Classifier]-->[Feature Vector and Image Class] #Red
+[Feature Vector and Image Class]-->[Feature Dictionary] #Red
 
-[Matching Processor]<-[Feature Vector] #Green
+[Matching Processor]<-[Feature Vector and Image Class] #Green
 [Matching Processor]<-[Feature Dictionary] #Red
 
 [output]<-[Matching Processor] #Green
@@ -56,7 +57,8 @@ run time flow for input image
 end note
 
 note as CNN
-Backbone CNN network from VGG
+Backbone CNN from VGG
+Classifier trained using transfer learning
 end note
 
 note as FM
@@ -66,6 +68,7 @@ end note
 
 note as FD
 Feature dictionary of the sample images
+based on the class of the image
 end note
 
 
@@ -73,9 +76,9 @@ end note
 G -- image
 [Sample Images] - R
 
-CNN - [Feature Extractor]
+CNN - [Feature Extractor and Classifier]
 
-FM - [Feature Vector]
+FM - [Feature Vector and Image Class]
 
 FD - [Feature Dictionary]
 
