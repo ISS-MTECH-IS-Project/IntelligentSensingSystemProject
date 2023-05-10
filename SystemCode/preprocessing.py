@@ -76,32 +76,25 @@ def Pic_preprocessing(file):
     image = cv2.imread(UPLOAD_FOLDER+file)
 
     image = resize(image)
-    # Convert to grayscale
-    grey_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    # Convert the image to grayscale
+    gray_img = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
-    # Invert the grayscale image
-    invert = cv2.bitwise_not(grey_img)
+    # Apply a median blur to reduce noise in the image
+    blur_img = cv2.medianBlur(gray_img, 5)
 
-    # Apply Gaussian blur
-    blur = cv2.GaussianBlur(invert, (29, 21), 0)
+    # Detect edges based on color contrast
+    canny_img = cv2.Canny(blur_img, 100, 200)
 
-    # Invert the blurred image
-    invertedblur = cv2.bitwise_not(blur)
+    # Create a white background image
+    white_bg = np.ones_like(image) * 255
 
-    # Apply division to create a sketch effect
-    sketch = cv2.divide(grey_img, invertedblur, scale=256.0)
+    # Find contours in the canny image
+    contours, hierarchy = cv2.findContours(canny_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
-    # Convert to BGR (if needed)
-    sketch = cv2.cvtColor(sketch, cv2.COLOR_GRAY2BGR)
-    enhanced_sketch = Contrast(sketch)
+    # Draw the contours on the white background image
+    cv2.drawContours(white_bg, contours, -1, (0, 0, 0), 2)
 
-    edges = Edgeline(image)
-
-    # Dilate edges to increase thickness
-    kernel = np.ones((10, 10), np.uint8)
-    dilated_edges = cv2.dilate(edges, kernel, iterations=1)
-
-    result = cv2.bitwise_and(enhanced_sketch, edges)
+    result = white_bg
 
     newname = UPLOAD_FOLDER+"processed_"+file
     cv2.imwrite(newname, result)
