@@ -14,7 +14,7 @@ cors = CORS(app)
 UPLOAD_FOLDER = "./static/images"
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-# __matcher = Matcher()
+__matcher = Matcher()
 
 
 def convert_image(file):
@@ -54,6 +54,6 @@ def matchImage():
         print("not drawing")
         processedImage = Preprocessing_input(processedImage)
     saveImage(processedImage, processedFile)
-    resp = {}
-    # resp = __matcher.findMatch(processedFile)
+    # resp = {}
+    resp = __matcher.findMatch(processedFile)
     return jsonify(resp)
