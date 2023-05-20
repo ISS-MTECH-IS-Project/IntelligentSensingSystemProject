@@ -1,5 +1,5 @@
 from urllib import response
-from preprocessing import Pic_preprocessing
+from preprocessing import *
 from flask import Flask, jsonify, request
 from flask import render_template
 from flask import send_from_directory
@@ -14,7 +14,7 @@ cors = CORS(app)
 UPLOAD_FOLDER = "./static/images"
 
 app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-__matcher = Matcher()
+# __matcher = Matcher()
 
 
 def convert_image(file):
@@ -47,6 +47,13 @@ def uploadFile(file1):
 def matchImage():
     image = request.files["image"]
     filename = uploadFile(image)
-    processedFile = Pic_preprocessing(filename)
-    resp = __matcher.findMatch(processedFile)
+    processedFile = app.config["UPLOAD_FOLDER"]+"/processed_"+filename
+    image = readImage(app.config["UPLOAD_FOLDER"]+"/"+filename)
+    processedImage = resize(image)
+    if request.form.get("skipprocessing") != "true":
+        print("not drawing")
+        processedImage = Preprocessing_input(processedImage)
+    saveImage(processedImage, processedFile)
+    resp = {}
+    # resp = __matcher.findMatch(processedFile)
     return jsonify(resp)

@@ -10,8 +10,9 @@ const ChatScreen = () => {
   const [messages, setMessages] = useState([]);
   const [showDetails, setShowDetails] = useState(false);
 
-  const uploadImg = async (file, preview) => {
+  const uploadImg = async (file, preview, skipprocessing) => {
     const reqBody = new FormData();
+    reqBody.append("skipprocessing", skipprocessing);
     reqBody.append("image", file, file.name);
     const res = await fetch(`http://localhost:5000/api/match`, {
       method: "POST",
