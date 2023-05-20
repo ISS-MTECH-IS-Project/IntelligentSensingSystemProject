@@ -22,6 +22,7 @@ const Footer = ({ onSend, onToggle }) => {
   const webcamRef = useRef(null);
   const canvas = useRef(null);
 
+  const [skipprocessing, setSkipprocessing] = useState(false);
   const [modalIsOpen, setIsOpen] = useState(false);
 
   function openModal() {
@@ -49,6 +50,7 @@ const Footer = ({ onSend, onToggle }) => {
   };
 
   const exportDraw = useCallback(async () => {
+    setSkipprocessing(true);
     canvas.current
       .exportImage("jpeg")
       .then((data) => {
@@ -60,18 +62,20 @@ const Footer = ({ onSend, onToggle }) => {
       });
   });
   const capture = useCallback(async () => {
+    setSkipprocessing(false);
     const pictureSrc = webcamRef.current.getScreenshot();
     updateImage(pictureSrc);
   });
   const onClickF = () => {
     console.log("button clicked");
-    onSend(image, preview);
+    onSend(image, preview, skipprocessing);
     setImage(null);
     setUploadImage(null);
   };
 
   const handleChange = (e) => {
     console.log(e.target);
+    setSkipprocessing(false);
     setImage(e.target.files[0]);
     setUploadImage(e.target.files[0]);
   };

@@ -1,5 +1,6 @@
 import numpy as np
 from tensorflow.keras.applications.vgg16 import VGG16
+from tensorflow.keras.applications import ResNet50
 import tensorflow as tf
 from tensorflow.keras import layers
 from keras.models import load_model
@@ -22,7 +23,8 @@ class SingletonMeta(type):
 
 
 UPLOAD_FOLDER = "./static/images"
-
+resnet = False
+pooling = False
 CHANNELS = 3  # Keep RGB color channels to match the input format of the model
 
 
@@ -76,15 +78,24 @@ def load_all_models():
                        include_top=False,  # Leave out the last fully connected layer
                        weights='imagenet')
 
+    if resnet:
+        base_model = ResNet50(input_shape=(224, 224, 3),  # Shape of our images
+                              include_top=False,  # Leave out the last fully connected layer
+                              weights='imagenet')
     for layer in base_model.layers:
         layer.trainable = False
         # print(layer)
-    base_model.summary()
-    x = layers.Flatten()(base_model.output)
+    # base_model.summary()
+    x = base_model.output
+    if pooling:
+        x = layers.AveragePooling2D(pool_size=(7, 7))(x)
+    x = layers.Flatten()(x)
     model = tf.keras.models.Model(base_model.input, x)
     # model2 = load_model("models/backbone_c.hdf5")
     # model = load_model("models/self_trained.hdf5")
-    model2 = load_model("models/self_trained_c.hdf5")
+    model2 = load_model("models/self_trained_c_full.hdf5")
+    if resnet:
+        model2 = load_model("models/self_trained_res.hdf5")
     return model, model2
 
 

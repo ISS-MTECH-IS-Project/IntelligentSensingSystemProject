@@ -56,7 +56,7 @@ def Edgeline(image):
 def resize(image):
     height, width, _ = image.shape
     top, bottom, left, right = 0, 0, 0, 0
-    if(height > width):
+    if (height > width):
         left = (height-width)//2
         right = height-width-left
     else:
@@ -89,7 +89,8 @@ def Pic_preprocessing(file):
     white_bg = np.ones_like(image) * 255
 
     # Find contours in the canny image
-    contours, hierarchy = cv2.findContours(canny_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, hierarchy = cv2.findContours(
+        canny_img, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
 
     # Draw the contours on the white background image
     cv2.drawContours(white_bg, contours, -1, (0, 0, 0), 2)
@@ -100,3 +101,41 @@ def Pic_preprocessing(file):
     cv2.imwrite(newname, result)
 
     return newname
+
+
+def Preprocessing_input(image):
+
+    # Convert the image to grayscale
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+    # Apply adaptive thresholding to create a binary image
+    _, binary = cv2.threshold(gray, 128, 255, cv2.THRESH_BINARY_INV)
+
+    # Find contours in the binary image
+    contours, _ = cv2.findContours(binary, cv2.RETR_TREE,  # cv2.RETR_EXTERNAL
+                                   cv2.CHAIN_APPROX_TC89_L1)  # cv2.CHAIN_APPROX_SIMPLE)
+
+    # Create a white background image with the same shape as the original image
+    output = np.ones_like(image) * 255
+    output_line = np.ones_like(image) * 255
+
+    # Draw the contours (black lines) on the white background image
+    cv2.drawContours(output, contours, -1, (0, 0, 0), thickness=20)
+    cv2.drawContours(output_line, contours, -1, (0, 0, 0), thickness=2)
+
+    # Reduce line thickness by eroding the image
+    kernel = np.ones((3, 3), np.uint8)
+    output = cv2.dilate(output, kernel, iterations=10)
+
+    # Combine output and output_line
+    combined_image = cv2.bitwise_and(output, output_line)
+
+    return combined_image
+
+
+def readImage(image_path):
+    return cv2.imread(image_path)
+
+
+def saveImage(image, image_path):
+    cv2.imwrite(image_path, image)
