@@ -93,7 +93,7 @@ def load_all_models():
     model = tf.keras.models.Model(base_model.input, x)
     # model2 = load_model("models/backbone_c.hdf5")
     # model = load_model("models/self_trained.hdf5")
-    model2 = load_model("models/self_trained_c.hdf5")
+    model2 = load_model("models/self_trained_c_full.hdf5")
     if resnet:
         model2 = load_model("models/self_trained_res.hdf5")
     return model, model2
