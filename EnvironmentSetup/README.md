@@ -23,17 +23,17 @@ conda activate py39
 
 ## Setup the application
 
-- Download the code repository from github and save the code under ~/PRMLS_Project https://github.com/TeamEightIS04/PRMLS_Poject
+- Download the code repository from github and save the code under ~/IntelligentSensingSystemProject https://github.com/ISS-MTECH-IS-Project/IntelligentSensingSystemProject
 - Go to the SystemCode folder
 
 ```bash
-cd ~/PRMLS_Project/SystemCode
+cd ~/IntelligentSensingSystemProject/SystemCode
 ```
 
 - Install the dependencies (make sure the py39 environment is activated)
 
 ```bash
-pip install tensorflow==2.9.0 Flask flask-cors Pillow
+pip install tensorflow Flask flask-cors Pillow opencv-python scikit-learn
 ```
 
 - Start the application
